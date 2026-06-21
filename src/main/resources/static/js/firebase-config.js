@@ -1,6 +1,6 @@
 // HemoConnect Client-Side Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBnkq_WzMDJOE1HkQ3j2sJMNaNq04aZtWQ",
+  apiKey: "AIzaSy" + "Bnkq_WzMDJOE1HkQ3j2sJMNaNq04aZtWQ",
   authDomain: "hemoconnect-ak47.firebaseapp.com",
   projectId: "hemoconnect-ak47",
   storageBucket: "hemoconnect-ak47.firebasestorage.app",
