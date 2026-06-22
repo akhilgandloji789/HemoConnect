@@ -33,6 +33,21 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    // Handles malformed JSON payloads and strict schema validation violations (unrecognized fields)
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleHttpMessageNotReadableException(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        Map<String, String> error = new HashMap<>();
+        Throwable cause = ex.getCause();
+        if (cause instanceof com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException unrecognizedPropertyException) {
+            error.put("error", "Unexpected field '" + unrecognizedPropertyException.getPropertyName() + "' in request payload. Schema validation failed.");
+        } else if (cause instanceof com.fasterxml.jackson.databind.exc.MismatchedInputException mismatchedInputException) {
+            error.put("error", "Invalid data type or format for field: " + mismatchedInputException.getPathReference());
+        } else {
+            error.put("error", "Malformed JSON request payload: " + ex.getMessage());
+        }
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     // Shield general/internal exceptions (Taha Jaffri Rule 9)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex) {

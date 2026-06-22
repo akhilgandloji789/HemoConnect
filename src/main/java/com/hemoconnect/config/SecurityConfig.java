@@ -118,12 +118,13 @@ public class SecurityConfig implements Filter {
                path.equals("/api/analytics") ||
                path.equals("/api/admin/seed") || // Seeder accessible for hackathon demo
                path.equals("/api/donors/search-external") || // Expose voluntary donor search as public
+               path.startsWith("/api/config") || // Expose dynamic key/credentials configs
                !path.startsWith("/api/"); // Static website resources
     }
 
     private void setSecurityHeaders(HttpServletResponse response) {
         // HTTP Security Headers (Taha Jaffri Rule 7)
-        response.setHeader("Content-Security-Policy", "default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.tailwindcss.com https://lh3.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://lh3.googleusercontent.com; connect-src 'self'; frame-ancestors 'none';");
+        response.setHeader("Content-Security-Policy", "default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.tailwindcss.com https://lh3.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com https://maps.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://lh3.googleusercontent.com https://maps.gstatic.com https://*.googleapis.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src 'self' https://*.firebaseapp.com; frame-ancestors 'none';");
         response.setHeader("X-Frame-Options", "DENY"); // Clickjacking protection
         response.setHeader("X-Content-Type-Options", "nosniff"); // MIME sniffing protection
         response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains"); // Force HTTPS

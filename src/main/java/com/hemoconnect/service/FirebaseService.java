@@ -5,6 +5,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.hemoconnect.config.FirebaseConfig;
 import com.hemoconnect.model.*;
+import com.hemoconnect.util.InputSanitizer;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -294,6 +295,17 @@ public class FirebaseService {
         if (donor.getTimestamp() == null) {
             donor.setTimestamp(System.currentTimeMillis());
         }
+        
+        // Strict input sanitization (OWASP best practice)
+        donor.setFullName(InputSanitizer.sanitize(donor.getFullName()));
+        donor.setEmail(InputSanitizer.sanitize(donor.getEmail()));
+        donor.setPhone(InputSanitizer.sanitize(donor.getPhone()));
+        donor.setBloodGroup(InputSanitizer.sanitize(donor.getBloodGroup()));
+        donor.setGender(InputSanitizer.sanitize(donor.getGender()));
+        donor.setCity(InputSanitizer.sanitize(donor.getCity()));
+        donor.setDistrict(InputSanitizer.sanitize(donor.getDistrict()));
+        donor.setLastDonationDate(InputSanitizer.sanitize(donor.getLastDonationDate()));
+
         if (FirebaseConfig.isMockMode()) {
             mockDonors.put(donor.getId(), donor);
             return donor;
@@ -348,6 +360,16 @@ public class FirebaseService {
         if (request.getTimestamp() == null) {
             request.setTimestamp(System.currentTimeMillis());
         }
+        
+        // Strict input sanitization (OWASP best practice)
+        request.setPatientName(InputSanitizer.sanitize(request.getPatientName()));
+        request.setBloodGroupRequired(InputSanitizer.sanitize(request.getBloodGroupRequired()));
+        request.setHospital(InputSanitizer.sanitize(request.getHospital()));
+        request.setEmergencyLevel(InputSanitizer.sanitize(request.getEmergencyLevel()));
+        request.setContactNumber(InputSanitizer.sanitize(request.getContactNumber()));
+        request.setCity(InputSanitizer.sanitize(request.getCity()));
+        request.setStatus(InputSanitizer.sanitize(request.getStatus()));
+
         if (FirebaseConfig.isMockMode()) {
             mockRequests.put(request.getId(), request);
             return request;
@@ -400,6 +422,19 @@ public class FirebaseService {
         if (bank.getTimestamp() == null) {
             bank.setTimestamp(System.currentTimeMillis());
         }
+        
+        // Strict input sanitization (OWASP best practice)
+        bank.setName(InputSanitizer.sanitize(bank.getName()));
+        bank.setType(InputSanitizer.sanitize(bank.getType()));
+        bank.setAddress(InputSanitizer.sanitize(bank.getAddress()));
+        bank.setCity(InputSanitizer.sanitize(bank.getCity()));
+        bank.setSubLocation(InputSanitizer.sanitize(bank.getSubLocation()));
+        bank.setDistrict(InputSanitizer.sanitize(bank.getDistrict()));
+        bank.setContactNumber(InputSanitizer.sanitize(bank.getContactNumber()));
+        bank.setEmail(InputSanitizer.sanitize(bank.getEmail()));
+        bank.setState(InputSanitizer.sanitize(bank.getState()));
+        bank.setBak(InputSanitizer.sanitize(bank.getBak()));
+
         if (FirebaseConfig.isMockMode()) {
             mockBloodBanks.put(bank.getId(), bank);
             return bank;
@@ -441,6 +476,18 @@ public class FirebaseService {
         if (hospital.getTimestamp() == null) {
             hospital.setTimestamp(System.currentTimeMillis());
         }
+        
+        // Strict input sanitization (OWASP best practice)
+        hospital.setHospitalName(InputSanitizer.sanitize(hospital.getHospitalName()));
+        hospital.setLocation(InputSanitizer.sanitize(hospital.getLocation()));
+        hospital.setEmergencyContact(InputSanitizer.sanitize(hospital.getEmergencyContact()));
+        hospital.setAddress(InputSanitizer.sanitize(hospital.getAddress()));
+        hospital.setCity(InputSanitizer.sanitize(hospital.getCity()));
+        hospital.setDistrict(InputSanitizer.sanitize(hospital.getDistrict()));
+        hospital.setContactNumber(InputSanitizer.sanitize(hospital.getContactNumber()));
+        hospital.setCorporateEmail(InputSanitizer.sanitize(hospital.getCorporateEmail()));
+        hospital.setHak(InputSanitizer.sanitize(hospital.getHak()));
+
         if (FirebaseConfig.isMockMode()) {
             mockHospitals.put(hospital.getId(), hospital);
             return hospital;
@@ -500,6 +547,12 @@ public class FirebaseService {
         if (notification.getTimestamp() == null) {
             notification.setTimestamp(System.currentTimeMillis());
         }
+        
+        // Strict input sanitization (OWASP best practice)
+        notification.setMessage(InputSanitizer.sanitize(notification.getMessage()));
+        notification.setType(InputSanitizer.sanitize(notification.getType()));
+        notification.setRecipient(InputSanitizer.sanitize(notification.getRecipient()));
+
         if (FirebaseConfig.isMockMode()) {
             mockNotifications.add(0, notification); // Add to front of list
             return notification;

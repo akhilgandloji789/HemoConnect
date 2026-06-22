@@ -30,6 +30,15 @@ public class AdminController {
     // CORS proxy endpoint to fetch JSON data from external blood bank API registries
     @org.springframework.web.bind.annotation.GetMapping("/fetch-external")
     public ResponseEntity<?> fetchExternalData(@org.springframework.web.bind.annotation.RequestParam String url) {
+        if (url == null || url.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "URL parameter is required."));
+        }
+
+        // Strict SSRF Prevention Check
+        if (!isSafeUrl(url)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Access Denied: The specified URL is restricted or invalid for SSRF security reasons."));
+        }
+
         try {
             java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
             java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
@@ -51,6 +60,35 @@ public class AdminController {
             }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("error", "Failed to fetch external resource: " + e.getMessage()));
+        }
+    }
+
+    private boolean isSafeUrl(String urlString) {
+        try {
+            java.net.URI uri = java.net.URI.create(urlString);
+            String scheme = uri.getScheme();
+            if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+                return false;
+            }
+            String host = uri.getHost();
+            if (host == null || host.trim().isEmpty()) {
+                return false;
+            }
+            
+            // Resolve host to IP addresses to prevent local/private network access (SSRF protection)
+            java.net.InetAddress[] addresses = java.net.InetAddress.getAllByName(host);
+            for (java.net.InetAddress addr : addresses) {
+                if (addr.isLoopbackAddress() || 
+                    addr.isAnyLocalAddress() || 
+                    addr.isLinkLocalAddress() || 
+                    addr.isSiteLocalAddress() ||
+                    addr.getHostAddress().startsWith("169.254")) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }

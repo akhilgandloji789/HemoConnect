@@ -5,7 +5,7 @@ const AuthEngine = {
     role: 'GUEST',
     listeners: [],
 
-    init() {
+    async init() {
         console.log("[AuthEngine] Initializing authentication listeners...");
         
         // Retrieve cached credentials for instant demo sessions
@@ -18,6 +18,18 @@ const AuthEngine = {
             this.role = cachedRole || 'DONOR';
             this.user = { email: cachedEmail || "user@hemoconnect.org" };
             console.log("[AuthEngine] Restored cached session for " + cachedEmail + " (Role: " + this.role + ")");
+        }
+
+        // Fetch client configurations dynamically from backend (ensuring no hardcoded keys)
+        if (!window.firebaseConfig) {
+            try {
+                const res = await fetch('/api/config/firebase');
+                if (res.ok) {
+                    window.firebaseConfig = await res.json();
+                }
+            } catch (err) {
+                console.error("[AuthEngine] Failed to load dynamic Firebase configuration:", err);
+            }
         }
 
         // Initialize Firebase SDK if config is present and Firebase is loaded

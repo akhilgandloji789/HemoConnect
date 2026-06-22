@@ -2872,10 +2872,24 @@ const AppEngine = {
         this.switchTab("settings");
     },
 
-    initGoogleMaps() {
+    async initGoogleMaps() {
         let key = localStorage.getItem("google_maps_api_key");
         if (!key) {
-            // Default inbuilt Google Maps API Key
+            try {
+                const res = await fetch('/api/config/maps-key');
+                if (res.ok) {
+                    const data = await res.json();
+                    key = data.key;
+                    if (key) {
+                        localStorage.setItem("google_maps_api_key", key);
+                    }
+                }
+            } catch (err) {
+                console.error("[AppEngine] Failed to load Google Maps API key dynamically:", err);
+            }
+        }
+        if (!key) {
+            // Default inbuilt Google Maps API Key fallback
             key = "AIzaSyD" + "HemoConnectDefaultAPIKey_ReplaceWithRealKey";
             localStorage.setItem("google_maps_api_key", key);
         }

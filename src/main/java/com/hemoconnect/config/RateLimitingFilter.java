@@ -24,7 +24,6 @@ public class RateLimitingFilter implements Filter {
             throws IOException, ServletException {
         
         if (request instanceof HttpServletRequest httpRequest && response instanceof HttpServletResponse httpResponse) {
-            String ip = getClientIP(httpRequest);
             String path = httpRequest.getRequestURI();
 
             // Ignore static resource files (CSS, JS, images) from rate limiting to allow fast rendering
@@ -37,7 +36,7 @@ public class RateLimitingFilter implements Filter {
             long capacity;
             long refillPeriodMs;
 
-            if (path.contains("/api/auth") || path.contains("/login") || path.contains("/register")) {
+            if (path.contains("/api/auth") || path.contains("/login") || path.contains("/register") || path.contains("/verify")) {
                 // Auth Limit: 5 requests per 15 minutes
                 capacity = 5;
                 refillPeriodMs = 15 * 60 * 1000;
@@ -55,7 +54,8 @@ public class RateLimitingFilter implements Filter {
                 refillPeriodMs = 60 * 1000;
             }
 
-            String bucketKey = ip + ":" + getLimitCategory(path);
+            String clientKey = getClientIdentifier(httpRequest);
+            String bucketKey = clientKey + ":" + getLimitCategory(path);
             TokenBucket bucket = ipBuckets.computeIfAbsent(bucketKey, k -> new TokenBucket(capacity, refillPeriodMs));
 
             if (!bucket.tryConsume()) {
@@ -75,6 +75,30 @@ public class RateLimitingFilter implements Filter {
         // Cleanup
     }
 
+    private String getClientIdentifier(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7).trim();
+            if (!token.isEmpty()) {
+                try {
+                    // Hashing token using SHA-256 for user-based rate limit
+                    java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+                    byte[] hash = digest.digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    StringBuilder hexString = new StringBuilder();
+                    for (byte b : hash) {
+                        String hex = Integer.toHexString(0xff & b);
+                        if (hex.length() == 1) hexString.append('0');
+                        hexString.append(hex);
+                    }
+                    return "user:" + hexString.toString().substring(0, 16);
+                } catch (Exception e) {
+                    return "user:unknown";
+                }
+            }
+        }
+        return "ip:" + getClientIP(request);
+    }
+
     private String getClientIP(HttpServletRequest request) {
         String xfHeader = request.getHeader("X-Forwarded-For");
         if (xfHeader == null) {
@@ -90,7 +114,7 @@ public class RateLimitingFilter implements Filter {
     }
 
     private String getLimitCategory(String path) {
-        if (path.contains("/api/auth") || path.contains("/login") || path.contains("/register")) return "AUTH";
+        if (path.contains("/api/auth") || path.contains("/login") || path.contains("/register") || path.contains("/verify")) return "AUTH";
         if (path.contains("/api/analytics") || path.contains("/api/ai") || path.contains("/api/emergency")) return "AI";
         if (path.contains("/upload")) return "UPLOAD";
         return "GENERAL";
