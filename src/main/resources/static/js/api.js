@@ -62,7 +62,11 @@ const ApiEngine = {
     },
 
     // Prepend absolute backend URL here if hosted separately (e.g. "https://hemoconnect-api.onrender.com")
-    BACKEND_URL: "",
+    BACKEND_URL: localStorage.getItem("hemoconnect_backend_url") || "",
+
+    updateBackendUrl() {
+        this.BACKEND_URL = localStorage.getItem("hemoconnect_backend_url") || "";
+    },
 
     // Core HTTP request wrapper
     async request(url, options = {}) {

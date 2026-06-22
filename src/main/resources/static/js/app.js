@@ -2796,6 +2796,16 @@ const AppEngine = {
                     <p class="text-sm text-on-surface-variant">Adjust interface configuration and system values.</p>
                 </div>
 
+                <!-- Backend API Server URL Config -->
+                <div class="border-t border-white/5 pt-6 space-y-4">
+                    <h4 class="font-bold text-white text-lg">Backend API Server Connection</h4>
+                    <p class="text-xs text-on-surface-variant">Specify your Spring Boot backend API Server URL (e.g. <code>http://localhost:8080</code> for local developer testing, or your deployed Cloud Run URL).</p>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <input type="url" id="settings-backend-url" class="flex-1 bg-black/40 border border-white/10 rounded-lg p-3 text-white text-sm focus:border-primary focus:ring-0 placeholder:text-on-surface-variant/30" placeholder="http://localhost:8080" value="${localStorage.getItem("hemoconnect_backend_url") || ""}" />
+                        <button onclick="AppEngine.saveBackendUrl()" class="bg-primary text-white font-bold px-6 py-3 rounded-lg hover:scale-105 transition-transform">Save Connection</button>
+                    </div>
+                </div>
+
                 <!-- Google Maps API Key Config -->
                 <div class="border-t border-white/5 pt-6 space-y-4">
                     <h4 class="font-bold text-white text-lg">Google Maps API Integration</h4>
@@ -2862,6 +2872,21 @@ const AppEngine = {
         } finally {
             ApiEngine.hideLoader();
         }
+    },
+
+    saveBackendUrl() {
+        const url = document.getElementById("settings-backend-url").value.trim();
+        const sanitizedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+        localStorage.setItem("hemoconnect_backend_url", sanitizedUrl);
+        if (window.ApiEngine) {
+            window.ApiEngine.updateBackendUrl();
+        }
+        alert("Backend API Server Connection saved! Reloading dynamic configuration...");
+        AuthEngine.init().then(() => {
+            this.initGoogleMaps();
+            alert("Dynamic server configuration refreshed!");
+            this.switchTab("settings");
+        });
     },
 
     saveMapsAPIKey() {
