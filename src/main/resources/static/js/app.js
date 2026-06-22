@@ -2901,7 +2901,9 @@ const AppEngine = {
         let key = localStorage.getItem("google_maps_api_key");
         if (!key) {
             try {
-                const res = await fetch('/api/config/maps-key');
+                const backendUrl = localStorage.getItem("hemoconnect_backend_url") || "";
+                const configUrl = backendUrl ? backendUrl + '/api/config/maps-key' : '/api/config/maps-key';
+                const res = await fetch(configUrl);
                 if (res.ok) {
                     const data = await res.json();
                     key = data.key;

@@ -23,7 +23,9 @@ const AuthEngine = {
         // Fetch client configurations dynamically from backend (ensuring no hardcoded keys)
         if (!window.firebaseConfig) {
             try {
-                const res = await fetch('/api/config/firebase');
+                const backendUrl = localStorage.getItem("hemoconnect_backend_url") || "";
+                const configUrl = backendUrl ? backendUrl + '/api/config/firebase' : '/api/config/firebase';
+                const res = await fetch(configUrl);
                 if (res.ok) {
                     window.firebaseConfig = await res.json();
                 }
