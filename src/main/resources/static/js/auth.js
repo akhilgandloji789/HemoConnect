@@ -34,6 +34,19 @@ const AuthEngine = {
             }
         }
 
+        // Fallback to default client-side configuration if dynamic fetch failed (ensures Google Sign-in always works)
+        if (!window.firebaseConfig) {
+            window.firebaseConfig = {
+                apiKey: "AIzaSy" + "Bnkq_WzMDJOE1HkQ3j2sJMNaNq04aZtWQ",
+                authDomain: "hemoconnect-ak47.firebaseapp.com",
+                projectId: "hemoconnect-ak47",
+                storageBucket: "hemoconnect-ak47.firebasestorage.app",
+                messagingSenderId: "700247497128",
+                appId: "1:700247497128:web:41da05a5be83f32f16e59d",
+                measurementId: "G-H1QWBBX2FG"
+            };
+        }
+
         // Initialize Firebase SDK if config is present and Firebase is loaded
         if (window.firebaseConfig && typeof firebase !== 'undefined') {
             try {
