@@ -2796,24 +2796,14 @@ const AppEngine = {
                     <p class="text-sm text-on-surface-variant">Adjust interface configuration and system values.</p>
                 </div>
 
-                <!-- Backend API Server URL Config -->
+                <!-- Support Contact -->
                 <div class="border-t border-white/5 pt-6 space-y-4">
-                    <h4 class="font-bold text-white text-lg">Backend API Server Connection</h4>
-                    <p class="text-xs text-on-surface-variant">Specify your Spring Boot backend API Server URL (e.g. <code>http://localhost:8080</code> for local developer testing, or your deployed Cloud Run URL).</p>
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <input type="url" id="settings-backend-url" class="flex-1 bg-black/40 border border-white/10 rounded-lg p-3 text-white text-sm focus:border-primary focus:ring-0 placeholder:text-on-surface-variant/30" placeholder="http://localhost:8080" value="${localStorage.getItem("hemoconnect_backend_url") || ""}" />
-                        <button onclick="AppEngine.saveBackendUrl()" class="bg-primary text-white font-bold px-6 py-3 rounded-lg hover:scale-105 transition-transform">Save Connection</button>
-                    </div>
-                </div>
-
-                <!-- Google Maps API Key Config -->
-                <div class="border-t border-white/5 pt-6 space-y-4">
-                    <h4 class="font-bold text-white text-lg">Google Maps API Integration</h4>
-                    <p class="text-xs text-on-surface-variant">Provide your Google Maps API Key to enable precision satellite geographical coordinates tracking in HemoConnect.</p>
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <input type="password" id="settings-maps-key" class="flex-1 bg-black/40 border border-white/10 rounded-lg p-3 text-white text-sm focus:border-primary focus:ring-0 placeholder:text-on-surface-variant/30" placeholder="AIzaSy..." value="${savedKey}" />
-                        <button onclick="AppEngine.saveMapsAPIKey()" class="bg-primary text-white font-bold px-6 py-3 rounded-lg hover:scale-105 transition-transform">Save API Key</button>
-                    </div>
+                    <h4 class="font-bold text-white text-lg">System Support & Assistance</h4>
+                    <p class="text-xs text-on-surface-variant">For dynamic integrations, database synchronization, API credentials setup, or administrative inquiries, please contact the support team.</p>
+                    <a href="mailto:akhilgandloji789@gmail.com" class="inline-flex items-center gap-2 text-primary hover:text-white font-bold font-jetbrainsMono text-sm bg-primary/10 border border-primary/20 px-6 py-3 rounded-xl transition-all hover:scale-105 shadow-lg shadow-primary/10">
+                        <span class="material-symbols-outlined text-base">alternate_email</span>
+                        Contact: akhilgandloji789@gmail.com
+                    </a>
                 </div>
 
                 ${isAdmin ? `
