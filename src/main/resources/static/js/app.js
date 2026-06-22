@@ -118,19 +118,33 @@ const AppEngine = {
                     </button>
                 </div>
 
-                <!-- Form: Citizen/Donor Login -->
+                <!-- Form: Citizen/Donor Login & Registration -->
                 <form id="gate-form-citizen" class="space-y-4 relative z-10">
+                    <input type="hidden" id="gate-citizen-mode" value="signin" />
+                    
+                    <div id="gate-citizen-name-container" class="space-y-1 hidden">
+                        <label class="block text-[10px] font-bold text-primary font-jetbrainsMono uppercase tracking-wider">FULL NAME</label>
+                        <input type="text" id="gate-citizen-name" class="w-full bg-black/50 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-primary focus:ring-0 placeholder:text-on-surface-variant/20" placeholder="e.g. John Doe" />
+                    </div>
+                    
                     <div class="space-y-1">
                         <label class="block text-[10px] font-bold text-primary font-jetbrainsMono uppercase tracking-wider">EMAIL ADDRESS</label>
                         <input type="email" id="gate-citizen-email" class="w-full bg-black/50 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-primary focus:ring-0 placeholder:text-on-surface-variant/20" placeholder="e.g. donor@hemoconnect.org" required />
                     </div>
+                    
                     <div class="space-y-1">
                         <label class="block text-[10px] font-bold text-primary font-jetbrainsMono uppercase tracking-wider">SECURE PASSWORD</label>
                         <input type="password" id="gate-citizen-pass" class="w-full bg-black/50 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-primary focus:ring-0 placeholder:text-on-surface-variant/20" placeholder="••••••••" required />
                     </div>
-                    <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20 text-[11px] tracking-wider uppercase">
+                    
+                    <button type="submit" id="gate-citizen-submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20 text-[11px] tracking-wider uppercase">
                         Authorize Citizen Credentials
                     </button>
+                    
+                    <p class="text-center text-[10.5px] text-on-surface-variant/70 mt-2">
+                        <span id="gate-toggle-text">New to HemoConnect?</span> 
+                        <button type="button" id="gate-link-toggle-signup" class="text-primary hover:underline font-bold ml-1">Create an Account</button>
+                    </p>
                 </form>
 
                 <!-- Form: Hospital Login (Hidden by default) -->
@@ -199,26 +213,60 @@ const AppEngine = {
             formCitizen.classList.add("hidden");
         });
 
+        // Toggle signin/signup modes
+        const toggleLink = document.getElementById("gate-link-toggle-signup");
+        const citizenMode = document.getElementById("gate-citizen-mode");
+        const nameContainer = document.getElementById("gate-citizen-name-container");
+        const nameInput = document.getElementById("gate-citizen-name");
+        const citizenSubmit = document.getElementById("gate-citizen-submit");
+        const toggleText = document.getElementById("gate-toggle-text");
+
+        toggleLink.addEventListener("click", () => {
+            if (citizenMode.value === "signin") {
+                citizenMode.value = "signup";
+                nameContainer.classList.remove("hidden");
+                nameInput.setAttribute("required", "required");
+                citizenSubmit.innerText = "Create New Account";
+                toggleText.innerText = "Already have an account?";
+                toggleLink.innerText = "Sign In";
+            } else {
+                citizenMode.value = "signin";
+                nameContainer.classList.add("hidden");
+                nameInput.removeAttribute("required");
+                citizenSubmit.innerText = "Authorize Citizen Credentials";
+                toggleText.innerText = "New to HemoConnect?";
+                toggleLink.innerText = "Create an Account";
+            }
+        });
+
         // Form Submit: Citizen / Donor
         formCitizen.addEventListener("submit", async (e) => {
             e.preventDefault();
+            const mode = citizenMode.value;
             const email = document.getElementById("gate-citizen-email").value.trim();
             const pass = document.getElementById("gate-citizen-pass").value.trim();
             
             try {
-                // Intercept Admin credentials
-                if (email === "akhilgandloji789@gmail.com" && pass === "Akhil#789") {
-                    await AuthEngine.signInWithEmail(email, pass);
-                    alert("Welcome back Admin, Akhil Gandloji. Elevating role access privileges.");
+                if (mode === "signup") {
+                    const name = nameInput.value.trim();
+                    await AuthEngine.signUpWithEmail(email, pass, name);
+                    alert("Account registration successful. Citizen session initiated.");
                     this.switchTab("dashboard");
-                    return;
+                } else {
+                    // Intercept Admin credentials
+                    if (email === "akhilgandloji789@gmail.com" && pass === "Akhil#789") {
+                        await AuthEngine.signInWithEmail(email, pass);
+                        alert("Welcome back Admin, Akhil Gandloji. Elevating role access privileges.");
+                        this.switchTab("dashboard");
+                        return;
+                    }
+                    
+                    await AuthEngine.signInWithEmail(email, pass);
+                    alert("Authorization successful. Citizen session initiated.");
+                    this.switchTab("dashboard");
                 }
-                
-                await AuthEngine.signInWithEmail(email, pass);
-                alert("Authorization successful. Citizen session initiated.");
-                this.switchTab("dashboard");
             } catch (err) {
-                alert("Sign-In failed: " + err.message);
+                alert((mode === "signup" ? "Registration" : "Sign-In") + " failed: " + err.message);
             }
         });
 
